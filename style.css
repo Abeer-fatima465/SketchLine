@@ -33,3 +33,24 @@ body {
 .welcome-section h1 { 
     font-size: 50px; 
 }
+.login-form {
+    margin-top: 20px;
+    text-align: center;
+    color: white;
+}
+
+.login-form form {
+    display: inline-block;
+    text-align: center;
+    color: white;
+}
+
+.login-form label,
+.login-form input {
+    margin-bottom: 10px;
+}
+
+.login-form input[type="submit"] {
+    display: block;
+    margin: auto;
+}
