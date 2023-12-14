@@ -1,4 +1,3 @@
-
 const express = require('express');
 const bodyParser = require('body-parser');
 const session = require('express-session');
@@ -35,6 +34,20 @@ app.post('/login', (req, res) => {
     } else {
         res.send('Invalid username or password');
     }
+});
+
+// Route to handle sign-up
+app.post('/signup', (req, res) => {
+    // Extracting user details from the request body
+    const username = req.body.username;
+    const email = req.body.email;
+    const password = req.body.password;
+    console.log('User created:', username, email, password);
+
+    // Sending a response back to the client
+    res.send('Sign-up successful! User created.');
+
+    // Here, you should add database handling code and proper password management
 });
 
 // Start the server
