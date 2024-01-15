@@ -16,6 +16,16 @@ app.use(session({
     cookie: { secure: true }
 }));
 
+function toggleMenu() {
+    var menu = document.getElementById('menu');
+    if (menu.style.display === 'block') {
+        menu.style.display = 'none';
+    } else {
+        menu.style.display = 'block';
+    }
+}
+
+
 // Serve static files from the same directory as this script
 app.use(express.static(__dirname));
 
@@ -54,3 +64,5 @@ app.post('/signup', (req, res) => {
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}/`);
 });
+
+

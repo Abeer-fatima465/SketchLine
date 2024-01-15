@@ -136,3 +136,28 @@ body {
 .modal input[type="submit"]:hover {
     background-color: #555;
 }
+
+/* Style for the menu container */
+#menu {
+    display: none; /* Start with the menu hidden */
+    background-color: #f9f9f9; /* Light grey background */
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); /* Add some shadow for depth */
+    position: absolute; /* Position it relative to its positioned parent */
+    min-width: 160px; /* Minimum width of the menu */
+}
+
+/* Style for the menu items */
+#menu a {
+    color: black; /* Text color for the links */
+    padding: 12px 16px; /* Padding inside each link */
+    text-decoration: none; /* No underline on the links */
+    display: block; /* Make each link fill out its container */
+    text-align: left; /* Align text to the left */
+}
+
+/* Change color of menu items on hover */
+#menu a:hover {
+    background-color: #ddd; /* Light grey background on hover */
+}
+
+

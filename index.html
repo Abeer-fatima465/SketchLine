@@ -35,9 +35,9 @@
 <body>
 
     <div class="navbar">
-        <a href="#home">Home</a>
-        <a href="#about">About</a>
-        <a href="#contact">Contact</a>
+        <button class="hamburger" onclick="toggleMenu()">☰</button>
+        <div class="menu" id="menu">
+        </div>
     </div>
 
     <div class="welcome-section">
@@ -104,11 +104,16 @@
         }
     }
     </script>
+    <script>
+        function toggleMenu() {
+            var links = document.querySelector('.nav-links');
+            links.style.display = links.style.display === 'block' ? 'none' : 'block';
+        }
+    </script>
 </body>
 </html>
         <!-- 
             main page = profile page 
             tindr/tiktok scrolling 
-            
             
         --> 
