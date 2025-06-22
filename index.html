@@ -1,104 +1,126 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Welcome to Our Site!</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scrolling Images Login</title>
     <link rel="stylesheet" href="style.css" />
+
 </head>
-
 <body>
-    <div class="navbar">
-        <button class="hamburger" onclick="toggleMenu()">☰</button>
-        <nav class="menu" id="menu">
-            <ul>
-                <li><a href="#">About</a></li>
-                <li><a href="#">Career</a></li>
-                <li><a href="#">Contact</a></li>
-                <li><a href="#">Help</a></li>
-            </ul>
-        </nav>
-    </div>
-    <div class="welcome-section">
-        <h1>SketchLine</h1>
-        <p>A place for photographers by a photographer</p>
+    <div class="image-container">
+        <div class="image-slide" style="background-image: url('https://source.unsplash.com/random/1920x1080?nature')"></div>
+        <div class="image-slide" style="background-image: url('https://source.unsplash.com/random/1920x1080?city')"></div>
+        <div class="image-slide" style="background-image: url('https://source.unsplash.com/random/1920x1080?architecture')"></div>
+        <div class="image-slide" style="background-image: url('https://source.unsplash.com/random/1920x1080?travel')"></div>
     </div>
 
-    <div class="form-container">
-        <!-- Login Form -->
-        <form action="/login" method="POST">
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required />
+    <div class="login-container">
+        <!-- Hamburger Menu -->
+        <div class="hamburger-menu">
+            <div class="hamburger-btn">
+                <div class="hamburger-line"></div>
+                <div class="hamburger-line"></div>
+                <div class="hamburger-line"></div>
+            </div>
+            <div class="menu-items">
+                <a href="#" class="menu-item">Contact</a>
+                <a href="#" class="menu-item">About</a>
+                <a href="#" class="menu-item">Help</a>
+            </div>
+        </div>
 
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required />
+        <h1>Hello, Stranger</h1>
+        <form>
+            <div class="input-group">
+            <input type="text" id="username" name="username" placeholder=" " required>
+            <label for="username">Username</label>
+            </div>
 
-            <div class="button-container">
-                <input type="submit" value="Login" />
-                <!-- Sign Up Button -->
-                <button type="button" id="signupBtn">Sign Up</button>
+            <div class="input-group">
+                <input type="password" id="password" placeholder=" " required>
+                <label for="password">Password</label>
             </div>
-            <div class="auth-options">
-                <div class="checkbox-group">
-                    <input type="checkbox" id="rememberMe" />
-                    <label for="rememberMe">Remember Me</label>
-                </div>
-                <a href="#" class="Forgot-Your-Password?">Forgot Your Password?</a>
+            <div class="forgot-password">
+                <a href="#">Forgot Your Password?</a>
             </div>
-            <div class="login-footer">
-                Don't have an account? <a href="#">Sign up</a>
-            </div>
+            <button type="submit">Login</button>
         </form>
-    </div>
 
-    <!-- The Sign Up Modal -->
-    <div id="signupModal" class="modal">
-        <!-- Modal content -->
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Sign Up</h2>
-            <form id="signupForm">
-                <input type="text" id="signupUsername" name="username" placeholder="Username" required />
-                <input type="email" id="signupEmail" name="email" placeholder="Email" required />
-                <input type="password" id="signupPassword" name="password" placeholder="Password" required />
-                <input type="submit" value="Sign Up" />
-            </form>
+        <div class="signup-link">
+            Don't have an account? <a href="#">Sign up</a>
+        </div>
+
+        <div class="social-login">
+            <div class="social-icon">G</div>
+            <div class="social-icon">f</div>
+            <div class="social-icon">in</div>
         </div>
     </div>
 
     <script>
-        // Get the modal
-        var modal = document.getElementById("signupModal");
+        // Auto-scrolling background images
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.image-slide');
+        const totalSlides = slides.length;
 
-        // Get the button that opens the modal
-        var btn = document.getElementById("signupBtn");
+        function showSlide(index) {
+            // Reset all slides to default state
+            slides.forEach(slide => {
+                slide.style.opacity = '0';
+                slide.style.transform = 'scale(1)';
+            });
 
-        // Get the <span> element that closes the modal
-        var span = document.getElementsByClassName("close")[0];
-
-        // When the user clicks the button, open the modal
-        btn.onclick = function () {
-            modal.style.display = "block";
-        };
-
-        // When the user clicks on <span> (x), close the modal
-        span.onclick = function () {
-            modal.style.display = "none";
-        };
-
-        // When the user clicks anywhere outside of the modal, close it
-        window.onclick = function (event) {
-            if (event.target == modal) {
-                modal.style.display = "none";
-            }
-        };
-
-        function toggleMenu() {
-            var menu = document.getElementById("menu");
-            menu.style.display = menu.style.display === "block" ? "none" : "block";
+            // Show current slide with slight zoom effect
+            slides[index].style.opacity = '0.4';
+            slides[index].style.transform = 'scale(1.02)';
         }
+
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % totalSlides;
+            showSlide(currentSlide);
+        }
+
+        // Initialize first slide
+        showSlide(currentSlide);
+
+        // Change slide every 5 seconds
+        setInterval(nextSlide, 5000);
+
+        // Form validation
+        document.querySelector('form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            //Send the data to your server
+            console.log('Login attempted with:', { username, password });
+            
+            // Simple alert for demo purposes
+            // alert('Login functionality would connect to your backend here');
+            dashboard();
+        });
+
+        function dashboard() {
+            window.location.href = 'dashboard.html';
+        }
+
+        // Hamburger menu functionality
+        const hamburgerBtn = document.querySelector('.hamburger-btn');
+        const menuItems = document.querySelector('.menu-items');
+
+        hamburgerBtn.addEventListener('click', function() {
+            this.classList.toggle('active');
+            menuItems.classList.toggle('active');
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.hamburger-menu')) {
+                hamburgerBtn.classList.remove('active');
+                menuItems.classList.remove('active');
+            }
+        });
     </script>
 </body>
-
 </html>

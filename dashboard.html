@@ -1,19 +1,186 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Dashboard</title>
-    <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Gallery Dashboard</title>
+    <link rel="stylesheet" href="dashboard.css">
 </head>
 <body>
-    <h1>Welcome to your Dashboard</h1>
-    <p>You have successfully logged in.</p>
-    <nav>
-        <ul>
-            <li><a href="/">Home</a></li>
-            <li><a href="/logout">Logout</a></li>
-        </ul>
-    </nav>
+    <div class="image-container">
+        <div class="image-slide" style="background-image: url('https://source.unsplash.com/random/1920x1080?nature')"></div>
+        <div class="image-slide" style="background-image: url('https://source.unsplash.com/random/1920x1080?city')"></div>
+        <div class="image-slide" style="background-image: url('https://source.unsplash.com/random/1920x1080?architecture')"></div>
+        <div class="image-slide" style="background-image: url('https://source.unsplash.com/random/1920x1080?travel')"></div>
+    </div>
+
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <div class="sidebar glass-container" style="display:none;">
+            <div class="sidebar-header">
+                <h1 class="sidebar-title">Gallery</h1>
+            </div>
+            <!-- Sidebar menu removed -->
+            <div class="logout-btn">
+                Logout
+            </div>
+        </div>
+
+        <!-- Header -->
+        <div class="header glass-container">
+            <h2 class="header-title">Welcome back, Jane</h2>
+            <nav class="header-menu">
+                <a href="#" class="menu-item active">
+                    <i>🖼️</i> All Images
+                </a>
+                <a href="#" class="menu-item">
+                    <i>📁</i> Albums
+                </a>
+                <a href="#" class="menu-item">
+                    <i>🔍</i> Messages
+                </a>
+                <a href="#" class="menu-item">
+                    <i>🔄</i> Team
+                </a>
+            </nav>
+            <div class="user-profile">
+                <div class="user-avatar">JD</div>
+            </div>
+        </div>
+        <!--- Sidebar contact information-->
+        <div class="contact-info glass-container">
+            <h3>Contact Information</h3>
+            <p>Email:<a href="mailto:">janedoe@gmail.com </a></p>
+            <p>Phone: <a href="tel:+1234567890">+1 234 567 890</a></p>
+            <p>Instagram: <a href="jane_Doe">janeDoe3311</a></p>
+            </div>
+        <!-- Main Content -->
+        <main class="main">
+            <!-- Upload Section -->
+            <div class="upload-section glass-container" id="upload-area">
+                <div class="upload-icon">📤</div>
+                <div class="upload-text">Drag & Drop images here</div>
+                <div class="upload-subtext">or click to browse files</div>
+                <input type="file" id="file-input" multiple accept="image/*">
+            </div>
+            <!-- Gallery Section -->
+            <div class="gallery-section">
+                <h3 class="gallery-title">Recent Uploads</h3>
+                <div class="gallery-grid">
+                    <!-- Gallery items will be dynamically added here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Auto-scrolling background images
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.image-slide');
+        const totalSlides = slides.length;
+
+        function showSlide(index) {
+            slides.forEach(slide => {
+                slide.style.opacity = '0';
+                slide.style.transform = 'scale(1)';
+            });
+
+            slides[index].style.opacity = '0.4';
+            slides[index].style.transform = 'scale(1.02)';
+        }
+
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % totalSlides;
+            showSlide(currentSlide);
+        }
+
+        // Initialize first slide
+        showSlide(currentSlide);
+        setInterval(nextSlide, 5000);
+
+        // Upload functionality
+        const uploadArea = document.getElementById('upload-area');
+        const fileInput = document.getElementById('file-input');
+
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.background = 'rgba(255, 255, 255, 0.25)';
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.background = '';
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.background = '';
+            
+            if (e.dataTransfer.files.length) {
+                fileInput.files = e.dataTransfer.files;
+                handleFiles(fileInput.files);
+            }
+        });
+
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length) {
+                handleFiles(fileInput.files);
+            }
+        });
+
+        function handleFiles(files) {
+            for (let i = 0; i < files.length; i++) {
+                if (files[i].type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        // In a real app, you would upload the image to your server here
+                        // Then add it to the gallery when the upload is complete
+                        alert('In a real app, this would upload: ' + files[i].name);
+                        
+                        // This is just for demo - we would normally wait for server response
+                        addImageToGallery(e.target.result, files[i].name);
+                    };
+                    
+                    reader.readAsDataURL(files[i]);
+                }
+            }
+        }
+
+        function addImageToGallery(imageData, filename) {
+            const galleryGrid = document.querySelector('.gallery-grid');
+            const newItem = document.createElement('div');
+            newItem.className = 'gallery-item';
+            
+            const now = new Date();
+            const dateStr = now.toLocaleDateString();
+            
+            newItem.innerHTML = `
+                <img src="${imageData}" class="gallery-img">
+                <div class="gallery-overlay">
+                    <h3 class="gallery-title">${filename}</h3>
+                    <div class="gallery-date">Uploaded: Just now</div>
+                </div>
+                <div class="gallery-actions">
+                    <button class="action-btn">⭐</button>
+                    <button class="action-btn">🗑️</button>
+                </div>
+            `;
+            
+            galleryGrid.prepend(newItem);
+        }
+
+        // Delete button functionality (demo - would normally call server)
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('action-btn') && e.target.textContent === '🗑️') {
+                if (confirm('Delete this image?')) {
+                    e.target.closest('.gallery-item').remove();
+                }
+            }
+        });
+    </script>
 </body>
 </html>
