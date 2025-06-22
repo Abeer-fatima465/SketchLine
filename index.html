@@ -1,45 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Welcome to Our Site!</title>
-    <link rel="stylesheet" href="style.css">
-    <style>
-        /* Removed body style here to avoid conflict with style.css */
-
-        .navbar { background-color: #444; overflow: hidden; }
-        .navbar a { 
-            float: left; 
-            display: block; 
-            color: white; 
-            text-align: center; 
-            padding: 14px 20px; 
-            text-decoration: none; 
-        }
-        .navbar a:hover { 
-            background-color: #ddd; 
-            color: black; 
-        }
-
-        .welcome-section { 
-            padding: 50px; 
-            text-align: center; 
-        }
-
-        .welcome-section h1 { 
-            font-size: 50px; 
-        }
-    </style>
+    <link rel="stylesheet" href="style.css" />
 </head>
-<body>
 
+<body>
     <div class="navbar">
         <button class="hamburger" onclick="toggleMenu()">☰</button>
-        <div class="menu" id="menu">
-        </div>
+        <nav class="menu" id="menu">
+            <ul>
+                <li><a href="#">About</a></li>
+                <li><a href="#">Career</a></li>
+                <li><a href="#">Contact</a></li>
+                <li><a href="#">Help</a></li>
+            </ul>
+        </nav>
     </div>
-
     <div class="welcome-section">
         <h1>SketchLine</h1>
         <p>A place for photographers by a photographer</p>
@@ -49,15 +29,25 @@
         <!-- Login Form -->
         <form action="/login" method="POST">
             <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required>
-    
+            <input type="text" id="username" name="username" required />
+
             <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required>
-    
+            <input type="password" id="password" name="password" required />
+
             <div class="button-container">
-                <input type="submit" value="Login">
+                <input type="submit" value="Login" />
                 <!-- Sign Up Button -->
                 <button type="button" id="signupBtn">Sign Up</button>
+            </div>
+            <div class="auth-options">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="rememberMe" />
+                    <label for="rememberMe">Remember Me</label>
+                </div>
+                <a href="#" class="Forgot-Your-Password?">Forgot Your Password?</a>
+            </div>
+            <div class="login-footer">
+                Don't have an account? <a href="#">Sign up</a>
             </div>
         </form>
     </div>
@@ -69,51 +59,46 @@
             <span class="close">&times;</span>
             <h2>Sign Up</h2>
             <form id="signupForm">
-                <input type="text" id="signupUsername" name="username" placeholder="Username" required>
-                <input type="email" id="signupEmail" name="email" placeholder="Email" required>
-                <input type="password" id="signupPassword" name="password" placeholder="Password" required>
-                <input type="submit" value="Sign Up">
+                <input type="text" id="signupUsername" name="username" placeholder="Username" required />
+                <input type="email" id="signupEmail" name="email" placeholder="Email" required />
+                <input type="password" id="signupPassword" name="password" placeholder="Password" required />
+                <input type="submit" value="Sign Up" />
             </form>
         </div>
     </div>
 
     <script>
-    // Get the modal
-    var modal = document.getElementById('signupModal');
+        // Get the modal
+        var modal = document.getElementById("signupModal");
 
-    // Get the button that opens the modal
-    var btn = document.getElementById('signupBtn');
+        // Get the button that opens the modal
+        var btn = document.getElementById("signupBtn");
 
-    // Get the <span> element that closes the modal
-    var span = document.getElementsByClassName('close')[0];
+        // Get the <span> element that closes the modal
+        var span = document.getElementsByClassName("close")[0];
 
-    // When the user clicks the button, open the modal 
-    btn.onclick = function() {
-        modal.style.display = "block";
-    }
+        // When the user clicks the button, open the modal
+        btn.onclick = function () {
+            modal.style.display = "block";
+        };
 
-    // When the user clicks on <span> (x), close the modal
-    span.onclick = function() {
-        modal.style.display = "none";
-    }
-
-    // When the user clicks anywhere outside of the modal, close it
-    window.onclick = function(event) {
-        if (event.target == modal) {
+        // When the user clicks on <span> (x), close the modal
+        span.onclick = function () {
             modal.style.display = "none";
-        }
-    }
-    </script>
-    <script>
+        };
+
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function (event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        };
+
         function toggleMenu() {
-            var links = document.querySelector('.nav-links');
-            links.style.display = links.style.display === 'block' ? 'none' : 'block';
+            var menu = document.getElementById("menu");
+            menu.style.display = menu.style.display === "block" ? "none" : "block";
         }
     </script>
 </body>
+
 </html>
-        <!-- 
-            main page = profile page 
-            tindr/tiktok scrolling 
-            
-        --> 

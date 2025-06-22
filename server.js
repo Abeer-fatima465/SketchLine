@@ -13,7 +13,7 @@ app.use(session({
     secret: 'your_secret_key', // Change this to a random secret string
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: true }
+    cookie: { secure: false }
 }));
 
 function toggleMenu() {
@@ -31,7 +31,7 @@ app.use(express.static(__dirname));
 
 // Route to serve the welcome page
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'welcome.html'));
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // Route to handle login
@@ -40,10 +40,30 @@ app.post('/login', (req, res) => {
     // In a real app, you should validate against data in your database
     if (req.body.username === 'admin' && req.body.password === 'password') {
         req.session.loggedIn = true;
-        res.send('Login successful!');
+        res.redirect('/dashboard');
     } else {
         res.send('Invalid username or password');
     }
+});
+
+//Route to handle dashboard 
+app.get('/dashboard', (req, res) => {
+    if (req.session.loggedIn) {
+        res.sendFile(path.join(__dirname,'dashboard.html'));
+    } else {
+        // Redirect to home if not logged in
+        res.redirect('/');
+    }
+});
+
+// Route to handle logout
+app.get('/logout', (req, res) => {
+    req.session.destroy(err => {
+        if (err) {
+            return res.send('Error logging out');
+        }
+        res.redirect('/');
+    });
 });
 
 // Route to handle sign-up
@@ -53,6 +73,7 @@ app.post('/signup', (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
     console.log('User created:', username, email, password);
+    res.send('User created successfully!');
 
     // Sending a response back to the client
     res.send('Sign-up successful! User created.');

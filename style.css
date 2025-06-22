@@ -140,7 +140,7 @@ body {
 /* Style for the menu container */
 #menu {
     display: none; /* Start with the menu hidden */
-    background-color: #f9f9f9; /* Light grey background */
+    background-color: #333; /* Changed to match page background */
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); /* Add some shadow for depth */
     position: absolute; /* Position it relative to its positioned parent */
     min-width: 160px; /* Minimum width of the menu */
@@ -148,7 +148,7 @@ body {
 
 /* Style for the menu items */
 #menu a {
-    color: black; /* Text color for the links */
+    color: white; /* Text color for the links */
     padding: 12px 16px; /* Padding inside each link */
     text-decoration: none; /* No underline on the links */
     display: block; /* Make each link fill out its container */
@@ -158,6 +158,50 @@ body {
 /* Change color of menu items on hover */
 #menu a:hover {
     background-color: #ddd; /* Light grey background on hover */
+    color: black; /* Text color changes to black on hover */
+}
+
+/* New style to place checkbox next to label */
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 1px;
+}
+
+.checkbox-group input[type="checkbox"],
+.checkbox-group label {
+    display: inline-block;
+    width: auto;
+    margin: 0;
+}
+
+.checkbox-group input[type="checkbox"] {
+    margin-right: 5px;
+}
+
+/* Improved readability for "Forgot Your Password?" and "Sign up" links */
+.auth-options a,
+.login-footer a {
+    color: #ddd;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.auth-options a:hover,
+.login-footer a:hover {
+    color: #fff;
 }
 
 
+/* Fix bullet point alignment in menu */
+#menu ul {
+    list-style: none;
+    list-style-position: inside;
+    padding-left: 20px;
+    margin: 0;
+}
+
+#menu li {
+    margin-left: 0;
+    padding-left: 0;
+}
