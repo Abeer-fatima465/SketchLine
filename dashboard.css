@@ -1,31 +1,38 @@
 /* Centered dashboard layout for profile page */
-.profile-dashboard {
-    /* overrides the grid layout for this page only */
+body {
+    height : 100vh;
+    overflow: hidden;
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 40px 20px;
-    height: 100vh;
+    background: #121212;
+}
+.dashboard-container {
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transform: translateY(-20px);
+    position: relative;
+    animation: floatIn 3s ease-in-out infinite;
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
 }
 
 /* Main content centered vertically with gap */
 .profile-main {
-    max-width: 600px;
-    width: 100%;
-    margin: 0 auto;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 40px;
 }
 
-/* Profile card styling, using glass look */
 .profile-card {
     text-align: center;
-    padding: 30px 40px;
 }
 
-/* Circular avatar, same gradient feel as buttons/user avatar */
+/* Circular avatar using same gradient as login's primary button */
 .profile-avatar {
     width: 120px;
     height: 120px;
@@ -41,7 +48,7 @@
     box-shadow: 0 4px 15px rgba(255, 94, 125, 0.4);
 }
 
-/* Name & contact text consistent with login colors */
+/* Name + contact text */
 .profile-name {
     color: white;
     margin-bottom: 8px;
@@ -54,7 +61,7 @@
     font-size: 0.95rem;
 }
 
-/* Albums section */
+/* Albums */
 .albums-section {
     width: 100%;
 }
@@ -63,10 +70,9 @@
     display: flex;
     align-items: center;
     gap: 20px;
-    padding: 20px 24px;
 }
 
-/* Add album button using same gradient style */
+/* Add album button with same gradient style */
 .add-album-btn {
     width: 48px;
     height: 48px;
@@ -90,14 +96,12 @@
     box-shadow: 0 6px 20px rgba(255, 94, 125, 0.6);
 }
 
-/* Row of albums */
 .albums-row {
     display: flex;
     gap: 15px;
     flex-wrap: wrap;
 }
 
-/* Individual album cards */
 .album-card {
     min-width: 140px;
     padding: 15px 18px;
