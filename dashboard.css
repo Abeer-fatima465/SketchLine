@@ -49,6 +49,7 @@ body {
     min-height: calc(100vh - 160px);
     justify-content: center;
     width: min(960px, 100%);
+    transform: translateY(-50px);
 }
 
 .profile-card {
