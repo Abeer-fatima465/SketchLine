@@ -1,11 +1,54 @@
 /* Centered dashboard layout for profile page */
 
+body {
+    height: 100vh;
+    margin: 0;
+    background: #121212; /* match login page */
+    overflow: hidden;
+    font-family: 'Arial', sans-serif;
+    color: white;
+}
+
+.image-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    display: flex;
+}
+
+.image-slide {
+    flex: 1;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    transition: all 1.5s ease;
+    opacity: 0.4;
+    filter: blur(2px);
+}
+
+.profile-dashboard {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 80px 20px 60px;
+    position: relative;
+    z-index: 1;
+    width: 100%;
+}
+
 /* Main content centered vertically with gap */
 .profile-main {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 40px;
+    min-height: calc(100vh - 160px);
+    justify-content: center;
+    width: min(960px, 100%);
 }
 
 .profile-card {
@@ -49,7 +92,9 @@
 .albums-inner {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 20px;
+    flex-wrap: wrap;
 }
 
 /* Add album button with same gradient style */
@@ -106,7 +151,7 @@
     position: fixed;
     top: 20px;
     left: 20px;
-    z-index: 200;
+    z-index: 9999;
 }
 
 .dash-hamburger__btn {
@@ -114,19 +159,19 @@
     height: 44px;
     border-radius: 50%;
     border: none;
-    background: rgba(255, 255, 255, 0.2);
+    background: linear-gradient(135deg, #ff5e7d, #ff9a5a);
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     cursor: pointer;
     transition: all 0.3s ease;
-    backdrop-filter: blur(6px);
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+    color: #fff;
 }
 
 .dash-hamburger__btn:hover {
-    background: rgba(255, 255, 255, 0.3);
+    filter: brightness(1.05);
 }
 
 .dash-hamburger__line {

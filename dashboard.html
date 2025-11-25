@@ -47,24 +47,26 @@
             const hamburgerBtn = document.querySelector('.dash-hamburger__btn');
             const hamburgerMenu = document.querySelector('.dash-hamburger__menu');
 
-            const toggleMenu = () => {
-                const isOpen = hamburgerMenu.classList.toggle('active');
-                hamburgerBtn.classList.toggle('active', isOpen);
-                hamburgerBtn.setAttribute('aria-expanded', String(isOpen));
-            };
+            if (hamburgerBtn && hamburgerMenu) {
+                const toggleMenu = () => {
+                    const isOpen = hamburgerMenu.classList.toggle('active');
+                    hamburgerBtn.classList.toggle('active', isOpen);
+                    hamburgerBtn.setAttribute('aria-expanded', String(isOpen));
+                };
 
-            hamburgerBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                toggleMenu();
-            });
+                hamburgerBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggleMenu();
+                });
 
-            document.addEventListener('click', (e) => {
-                if (!e.target.closest('.dash-hamburger')) {
-                    hamburgerMenu.classList.remove('active');
-                    hamburgerBtn.classList.remove('active');
-                    hamburgerBtn.setAttribute('aria-expanded', 'false');
-                }
-            });
+                document.addEventListener('click', (e) => {
+                    if (!e.target.closest('.dash-hamburger')) {
+                        hamburgerMenu.classList.remove('active');
+                        hamburgerBtn.classList.remove('active');
+                        hamburgerBtn.setAttribute('aria-expanded', 'false');
+                    }
+                });
+            }
 
             let currentSlide = 0;
             const slides = document.querySelectorAll('.image-slide');
