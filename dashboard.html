@@ -7,6 +7,20 @@
     <link rel="stylesheet" href="dashboard.css">
 </head>
 <body>
+    <!-- Hamburger menu -->
+    <div class="dash-hamburger">
+        <button class="dash-hamburger__btn" aria-label="Toggle menu" aria-expanded="false">
+            <span class="dash-hamburger__line"></span>
+            <span class="dash-hamburger__line"></span>
+            <span class="dash-hamburger__line"></span>
+        </button>
+        <nav class="dash-hamburger__menu" aria-label="Quick navigation">
+            <a class="dash-hamburger__item" href="#">Discover</a>
+            <a class="dash-hamburger__item" href="#">Home</a>
+            <a class="dash-hamburger__item" href="#">Search</a>
+        </nav>
+    </div>
+
     <!-- Background image slider -->
     <div class="image-container">
         <div class="image-slide" style="background-image: url('https://source.unsplash.com/random/1920x1080?nature')"></div>
@@ -29,6 +43,29 @@
     <script>
         /************* BACKGROUND SLIDER (same vibe as login) *************/
         document.addEventListener('DOMContentLoaded', () => {
+            /************* HAMBURGER MENU *************/
+            const hamburgerBtn = document.querySelector('.dash-hamburger__btn');
+            const hamburgerMenu = document.querySelector('.dash-hamburger__menu');
+
+            const toggleMenu = () => {
+                const isOpen = hamburgerMenu.classList.toggle('active');
+                hamburgerBtn.classList.toggle('active', isOpen);
+                hamburgerBtn.setAttribute('aria-expanded', String(isOpen));
+            };
+
+            hamburgerBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleMenu();
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.dash-hamburger')) {
+                    hamburgerMenu.classList.remove('active');
+                    hamburgerBtn.classList.remove('active');
+                    hamburgerBtn.setAttribute('aria-expanded', 'false');
+                }
+            });
+
             let currentSlide = 0;
             const slides = document.querySelectorAll('.image-slide');
             const totalSlides = slides.length;

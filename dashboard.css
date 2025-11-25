@@ -1,24 +1,4 @@
 /* Centered dashboard layout for profile page */
-body {
-    height : 100vh;
-    overflow: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: #121212;
-}
-.dashboard-container {
-    padding: 40px;
-    border-radius: 16px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    transform: translateY(-20px);
-    position: relative;
-    animation: floatIn 3s ease-in-out infinite;
-    width: 100%;
-    max-width: 900px;
-    margin: 0 auto;
-}
 
 /* Main content centered vertically with gap */
 .profile-main {
@@ -119,4 +99,91 @@ body {
 .album-subtitle {
     color: rgba(255, 255, 255, 0.7);
     font-size: 0.85rem;
+}
+
+/************* HAMBURGER MENU *************/
+.dash-hamburger {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 200;
+}
+
+.dash-hamburger__btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(6px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+.dash-hamburger__btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.dash-hamburger__line {
+    width: 20px;
+    height: 2px;
+    background: #fff;
+    margin: 2px 0;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.dash-hamburger__btn.active .dash-hamburger__line:nth-child(1) {
+    transform: translateY(6px) rotate(45deg);
+}
+
+.dash-hamburger__btn.active .dash-hamburger__line:nth-child(2) {
+    opacity: 0;
+}
+
+.dash-hamburger__btn.active .dash-hamburger__line:nth-child(3) {
+    transform: translateY(-6px) rotate(-45deg);
+}
+
+.dash-hamburger__menu {
+    position: absolute;
+    top: 56px;
+    left: 0;
+    min-width: 180px;
+    background: rgba(0, 0, 0, 0.85);
+    border-radius: 12px;
+    overflow: hidden;
+    transform: scaleY(0);
+    transform-origin: top;
+    transition: transform 0.25s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+.dash-hamburger__menu.active {
+    transform: scaleY(1);
+}
+
+.dash-hamburger__item {
+    display: block;
+    padding: 14px 18px;
+    color: white;
+    text-decoration: none;
+    transition: background 0.2s ease, padding-left 0.2s ease;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    font-size: 0.95rem;
+    letter-spacing: 0.3px;
+}
+
+.dash-hamburger__item:last-child {
+    border-bottom: none;
+}
+
+.dash-hamburger__item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    padding-left: 24px;
 }
