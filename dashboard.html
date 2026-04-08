@@ -85,6 +85,43 @@
         </div>
     </div>
 
+    <div class="photo-viewer-modal" id="photo-viewer-modal" aria-hidden="true">
+        <div class="photo-viewer-modal__backdrop"></div>
+        <div class="photo-viewer-modal__dialog glass-container" role="dialog" aria-modal="true" aria-labelledby="photo-viewer-title">
+            <button class="photo-viewer-modal__close" type="button" aria-label="Close photo viewer">
+                ×
+            </button>
+            <button class="photo-viewer-modal__nav photo-viewer-modal__nav--prev" type="button" aria-label="Previous photo">
+                &#8249;
+            </button>
+            <div class="photo-viewer-modal__frame">
+                <img class="photo-viewer-modal__image" id="photo-viewer-image" alt="">
+                <p class="photo-viewer-modal__caption" id="photo-viewer-title"></p>
+            </div>
+            <button class="photo-viewer-modal__nav photo-viewer-modal__nav--next" type="button" aria-label="Next photo">
+                &#8250;
+            </button>
+        </div>
+    </div>
+
+    <div class="delete-confirm-modal" id="delete-confirm-modal" aria-hidden="true">
+        <div class="delete-confirm-modal__backdrop"></div>
+        <div class="delete-confirm-modal__dialog glass-container" role="dialog" aria-modal="true" aria-labelledby="delete-confirm-title">
+            <button class="delete-confirm-modal__close" type="button" aria-label="Close delete warning">
+                ×
+            </button>
+            <p class="delete-confirm-modal__eyebrow">Warning</p>
+            <h2 class="delete-confirm-modal__title" id="delete-confirm-title">Delete selected album?</h2>
+            <p class="delete-confirm-modal__description" id="delete-confirm-description">
+                This action cannot be undone.
+            </p>
+            <div class="delete-confirm-modal__actions">
+                <button class="delete-confirm-modal__cancel" type="button">Cancel</button>
+                <button class="delete-confirm-modal__confirm" type="button">Delete</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         /************* BACKGROUND SLIDER (same vibe as login) *************/
         document.addEventListener('DOMContentLoaded', () => {
@@ -155,6 +192,8 @@
             let selectedAlbumIds = new Set();
             let isDeleteMode = false;
             let currentAlbumId = null;
+            let pendingDeleteAlbumId = null;
+            let currentPhotoIndex = 0;
 
             const profileRoot = document.getElementById('profile-root');
             const albumsRoot = document.getElementById('albums-root');
@@ -171,6 +210,17 @@
             const albumPhotoInput = document.getElementById('album-photo-input');
             const albumPhotoGallery = document.getElementById('album-photo-gallery');
             const albumSaveBtn = document.getElementById('album-save-btn');
+            const photoViewerModal = document.getElementById('photo-viewer-modal');
+            const photoViewerImage = document.getElementById('photo-viewer-image');
+            const photoViewerTitle = document.getElementById('photo-viewer-title');
+            const photoViewerCloseBtn = photoViewerModal.querySelector('.photo-viewer-modal__close');
+            const photoViewerPrevBtn = photoViewerModal.querySelector('.photo-viewer-modal__nav--prev');
+            const photoViewerNextBtn = photoViewerModal.querySelector('.photo-viewer-modal__nav--next');
+            const deleteConfirmModal = document.getElementById('delete-confirm-modal');
+            const deleteConfirmDescription = document.getElementById('delete-confirm-description');
+            const deleteConfirmCloseBtn = deleteConfirmModal.querySelector('.delete-confirm-modal__close');
+            const deleteConfirmCancelBtn = deleteConfirmModal.querySelector('.delete-confirm-modal__cancel');
+            const deleteConfirmSubmitBtn = deleteConfirmModal.querySelector('.delete-confirm-modal__confirm');
 
             function renderProfile() {
                 profileRoot.innerHTML = `
@@ -277,13 +327,10 @@
                 }
 
                 const albumId = parseInt(this.getAttribute('data-id'), 10);
-
-                if (selectedAlbumIds.has(albumId)) {
-                    selectedAlbumIds.delete(albumId);
-                } else {
-                    selectedAlbumIds.add(albumId);
-                }
-
+                selectedAlbumIds.clear();
+                selectedAlbumIds.add(albumId);
+                pendingDeleteAlbumId = albumId;
+                openDeleteConfirmation();
                 renderAlbums();
             }
 
@@ -305,20 +352,15 @@
 
             function handleDeleteAlbum() {
                 if (!isDeleteMode) {
+                    selectedAlbumIds.clear();
+                    pendingDeleteAlbumId = null;
                     isDeleteMode = true;
                     renderAlbums();
                     return;
                 }
 
-                if (selectedAlbumIds.size === 0) {
-                    selectedAlbumIds.clear();
-                    isDeleteMode = false;
-                    renderAlbums();
-                    return;
-                }
-
-                albums = albums.filter(album => !selectedAlbumIds.has(album.id));
                 selectedAlbumIds.clear();
+                pendingDeleteAlbumId = null;
                 isDeleteMode = false;
                 renderAlbums();
             }
@@ -334,6 +376,7 @@
 
             function closeAlbumView() {
                 currentAlbumId = null;
+                closePhotoViewer();
                 albumPhotoInput.value = '';
                 albumViewModal.classList.remove('album-view-modal--open');
                 albumViewModal.setAttribute('aria-hidden', 'true');
@@ -341,6 +384,36 @@
 
             function handleSaveAlbum() {
                 closeAlbumView();
+            }
+
+            function openDeleteConfirmation() {
+                const album = albums.find(item => item.id === pendingDeleteAlbumId);
+
+                if (!album) {
+                    return;
+                }
+
+                deleteConfirmDescription.textContent = `"${album.title}" will be permanently deleted. This action cannot be undone.`;
+                deleteConfirmModal.classList.add('delete-confirm-modal--open');
+                deleteConfirmModal.setAttribute('aria-hidden', 'false');
+            }
+
+            function closeDeleteConfirmation() {
+                deleteConfirmModal.classList.remove('delete-confirm-modal--open');
+                deleteConfirmModal.setAttribute('aria-hidden', 'true');
+                selectedAlbumIds.clear();
+                pendingDeleteAlbumId = null;
+                isDeleteMode = false;
+                renderAlbums();
+            }
+
+            function confirmDeleteAlbums() {
+                albums = albums.filter(album => album.id !== pendingDeleteAlbumId);
+                selectedAlbumIds.clear();
+                pendingDeleteAlbumId = null;
+                isDeleteMode = false;
+                closeDeleteConfirmation();
+                renderAlbums();
             }
 
             function renderAlbumPhotos(album) {
@@ -355,14 +428,19 @@
                 }
 
                 albumPhotoGallery.innerHTML = album.photos.map(photo => `
-                    <article class="album-photo-card">
-                        <img class="album-photo-card__image" src="${photo.src}" alt="${photo.name}">
+                    <article class="album-photo-card" data-photo-id="${photo.id}">
+                        <button class="album-photo-card__preview" type="button" data-photo-id="${photo.id}" aria-label="View photo">
+                            <img class="album-photo-card__image" src="${photo.src}" alt="${photo.name}">
+                        </button>
                         <button class="album-photo-card__remove" type="button" data-photo-id="${photo.id}" aria-label="Remove photo">
                             Remove
                         </button>
                     </article>
                 `).join('');
 
+                albumPhotoGallery.querySelectorAll('.album-photo-card__preview').forEach(button => {
+                    button.addEventListener('click', handleOpenPhotoViewer);
+                });
                 albumPhotoGallery.querySelectorAll('.album-photo-card__remove').forEach(button => {
                     button.addEventListener('click', handleRemovePhoto);
                 });
@@ -406,7 +484,70 @@
                 }
 
                 currentAlbum.photos = currentAlbum.photos.filter(photo => photo.id !== photoId);
+                if (photoViewerModal.classList.contains('photo-viewer-modal--open')) {
+                    closePhotoViewer();
+                }
                 renderAlbumPhotos(currentAlbum);
+            }
+
+            function handleOpenPhotoViewer() {
+                const currentAlbum = albums.find(album => album.id === currentAlbumId);
+                const photoId = this.getAttribute('data-photo-id');
+
+                if (!currentAlbum) {
+                    return;
+                }
+
+                currentPhotoIndex = currentAlbum.photos.findIndex(photo => photo.id === photoId);
+                if (currentPhotoIndex < 0) {
+                    return;
+                }
+
+                renderPhotoViewer(currentAlbum);
+                photoViewerModal.classList.add('photo-viewer-modal--open');
+                photoViewerModal.setAttribute('aria-hidden', 'false');
+            }
+
+            function renderPhotoViewer(album) {
+                if (!album.photos.length) {
+                    return;
+                }
+
+                const normalizedIndex = (currentPhotoIndex + album.photos.length) % album.photos.length;
+                const photo = album.photos[normalizedIndex];
+                currentPhotoIndex = normalizedIndex;
+
+                photoViewerImage.src = photo.src;
+                photoViewerImage.alt = photo.name;
+                photoViewerTitle.textContent = photo.name;
+            }
+
+            function closePhotoViewer() {
+                photoViewerModal.classList.remove('photo-viewer-modal--open');
+                photoViewerModal.setAttribute('aria-hidden', 'true');
+                photoViewerImage.src = '';
+                photoViewerImage.alt = '';
+                photoViewerTitle.textContent = '';
+            }
+
+            function showPreviousPhoto() {
+                const currentAlbum = albums.find(album => album.id === currentAlbumId);
+                if (!currentAlbum || !currentAlbum.photos.length) {
+                    return;
+                }
+
+                currentPhotoIndex -= 1;
+                renderPhotoViewer(currentAlbum);
+            }
+
+            function showNextPhoto() {
+                const currentAlbum = albums.find(album => album.id === currentAlbumId);
+                if (!currentAlbum || !currentAlbum.photos.length) {
+                    return;
+                }
+
+                currentPhotoIndex += 1;
+                renderPhotoViewer(currentAlbum);
             }
 
             // Initial render
@@ -421,9 +562,25 @@
             albumViewCloseBtn.addEventListener('click', closeAlbumView);
             albumPhotoInput.addEventListener('change', handleAlbumPhotoSelection);
             albumSaveBtn.addEventListener('click', handleSaveAlbum);
+            photoViewerCloseBtn.addEventListener('click', closePhotoViewer);
+            photoViewerPrevBtn.addEventListener('click', showPreviousPhoto);
+            photoViewerNextBtn.addEventListener('click', showNextPhoto);
+            deleteConfirmCloseBtn.addEventListener('click', closeDeleteConfirmation);
+            deleteConfirmCancelBtn.addEventListener('click', closeDeleteConfirmation);
+            deleteConfirmSubmitBtn.addEventListener('click', confirmDeleteAlbums);
             albumViewModal.addEventListener('click', (event) => {
                 if (event.target.classList.contains('album-view-modal') || event.target.classList.contains('album-view-modal__backdrop')) {
                     closeAlbumView();
+                }
+            });
+            photoViewerModal.addEventListener('click', (event) => {
+                if (event.target.classList.contains('photo-viewer-modal') || event.target.classList.contains('photo-viewer-modal__backdrop')) {
+                    closePhotoViewer();
+                }
+            });
+            deleteConfirmModal.addEventListener('click', (event) => {
+                if (event.target.classList.contains('delete-confirm-modal') || event.target.classList.contains('delete-confirm-modal__backdrop')) {
+                    closeDeleteConfirmation();
                 }
             });
             document.addEventListener('keydown', (event) => {
@@ -433,6 +590,22 @@
 
                 if (event.key === 'Escape' && albumViewModal.classList.contains('album-view-modal--open')) {
                     closeAlbumView();
+                }
+
+                if (event.key === 'Escape' && photoViewerModal.classList.contains('photo-viewer-modal--open')) {
+                    closePhotoViewer();
+                }
+
+                if (event.key === 'ArrowLeft' && photoViewerModal.classList.contains('photo-viewer-modal--open')) {
+                    showPreviousPhoto();
+                }
+
+                if (event.key === 'ArrowRight' && photoViewerModal.classList.contains('photo-viewer-modal--open')) {
+                    showNextPhoto();
+                }
+
+                if (event.key === 'Escape' && deleteConfirmModal.classList.contains('delete-confirm-modal--open')) {
+                    closeDeleteConfirmation();
                 }
             });
 
