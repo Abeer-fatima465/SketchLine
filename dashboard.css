@@ -98,6 +98,13 @@ body {
     flex-wrap: wrap;
 }
 
+.albums-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
 /* Add album button with same gradient style */
 .add-album-btn {
     width: 48px;
@@ -122,6 +129,35 @@ body {
     box-shadow: 0 6px 20px rgba(255, 94, 125, 0.6);
 }
 
+.delete-albums-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: none;
+    background: linear-gradient(45deg, #ff5e7d, #ff9a5a);
+    color: white;
+    font-size: 2rem;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(255, 94, 125, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.delete-albums-btn:hover:not(:disabled) {
+    box-shadow: 0 6px 20px rgba(255, 94, 125, 0.6);
+    transform: translateY(-2px);
+}
+
+.delete-albums-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
 .albums-row {
     display: flex;
     gap: 15px;
@@ -134,6 +170,31 @@ body {
     border-radius: 12px;
     background: rgba(0, 0, 0, 0.35);
     border: 1px solid rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.album-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 154, 90, 0.45);
+}
+
+.album-card--delete-mode {
+    border-color: rgba(255, 255, 255, 0.14);
+}
+
+.album-card--delete-mode:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 154, 90, 0.55);
+}
+
+.album-card--selected {
+    border-color: rgba(255, 154, 90, 0.9);
+    box-shadow: 0 0 0 1px rgba(255, 154, 90, 0.35);
+}
+
+.delete-albums-btn--active {
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.22), 0 6px 20px rgba(255, 94, 125, 0.6);
 }
 
 .album-title {
@@ -145,6 +206,352 @@ body {
 .album-subtitle {
     color: rgba(255, 255, 255, 0.7);
     font-size: 0.85rem;
+}
+
+.album-modal {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    z-index: 10000;
+}
+
+.album-modal--open {
+    display: flex;
+}
+
+.album-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(8, 8, 8, 0.62);
+    backdrop-filter: blur(10px);
+}
+
+.album-modal__dialog {
+    position: relative;
+    width: min(460px, calc(100vw - 32px));
+    padding: 28px;
+    border-radius: 24px;
+    background: rgba(17, 17, 17, 0.78);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+}
+
+.album-modal__close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255, 255, 255, 0.08);
+    color: white;
+    font-size: 1.35rem;
+    cursor: pointer;
+    transition: background 0.25s ease, transform 0.25s ease;
+}
+
+.album-modal__close:hover {
+    background: rgba(255, 255, 255, 0.16);
+    transform: rotate(90deg);
+}
+
+.album-modal__title {
+    margin: 0 0 8px;
+    font-size: 1.7rem;
+    font-weight: 600;
+    color: white;
+}
+
+.album-modal__subtitle {
+    margin: 0 0 22px;
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.album-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.album-form__field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    color: rgba(255, 255, 255, 0.88);
+    font-size: 0.9rem;
+}
+
+.album-form__input {
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.06);
+    color: white;
+    font: inherit;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+}
+
+.album-form__input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.album-form__input:focus {
+    border-color: rgba(255, 154, 90, 0.8);
+    box-shadow: 0 0 0 3px rgba(255, 154, 90, 0.14);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.album-form__textarea {
+    min-height: 96px;
+    resize: vertical;
+}
+
+.album-form__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 4px;
+}
+
+.album-form__cancel,
+.album-form__submit {
+    min-width: 110px;
+    padding: 12px 18px;
+    border-radius: 999px;
+    border: none;
+    color: white;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+}
+
+.album-form__cancel {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.album-form__submit {
+    background: linear-gradient(45deg, #ff5e7d, #ff9a5a);
+    box-shadow: 0 4px 15px rgba(255, 94, 125, 0.4);
+}
+
+.album-form__cancel:hover,
+.album-form__submit:hover {
+    transform: translateY(-2px);
+}
+
+.album-form__cancel:hover {
+    background: rgba(255, 255, 255, 0.16);
+}
+
+.album-form__submit:hover {
+    box-shadow: 0 6px 20px rgba(255, 94, 125, 0.6);
+}
+
+.album-view-modal {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    z-index: 10000;
+}
+
+.album-view-modal--open {
+    display: flex;
+}
+
+.album-view-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(8, 8, 8, 0.62);
+    backdrop-filter: blur(10px);
+}
+
+.album-view-modal__dialog {
+    position: relative;
+    width: min(620px, calc(100vw - 32px));
+    padding: 32px;
+    border-radius: 28px;
+    background: rgba(17, 17, 17, 0.82);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+}
+
+.album-view-modal__close {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255, 255, 255, 0.08);
+    color: white;
+    font-size: 1.35rem;
+    cursor: pointer;
+    transition: background 0.25s ease, transform 0.25s ease;
+}
+
+.album-view-modal__close:hover {
+    background: rgba(255, 255, 255, 0.16);
+    transform: rotate(90deg);
+}
+
+.album-view-modal__eyebrow {
+    margin: 0 0 10px;
+    color: rgba(255, 154, 90, 0.9);
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-size: 0.72rem;
+    font-weight: 700;
+}
+
+.album-view-modal__title {
+    margin: 0 0 10px;
+    color: white;
+    font-size: 2rem;
+    font-weight: 600;
+}
+
+.album-view-modal__description {
+    margin: 0 0 24px;
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+.album-view-modal__actions {
+    display: flex;
+    justify-content: flex-start;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.album-view-modal__upload,
+.album-view-modal__save {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 120px;
+    padding: 12px 18px;
+    border-radius: 999px;
+    background: linear-gradient(45deg, #ff5e7d, #ff9a5a);
+    color: white;
+    border: none;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(255, 94, 125, 0.4);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.album-view-modal__upload:hover,
+.album-view-modal__save:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 94, 125, 0.6);
+}
+
+.album-view-modal__file-input {
+    display: none;
+}
+
+.album-view-modal__content {
+    min-height: 240px;
+    border-radius: 22px;
+    padding: 28px;
+    background:
+        radial-gradient(circle at top left, rgba(255, 94, 125, 0.16), transparent 38%),
+        radial-gradient(circle at bottom right, rgba(255, 154, 90, 0.2), transparent 42%),
+        rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.album-view-modal__gallery {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 18px;
+}
+
+.album-view-modal__empty-state {
+    text-align: center;
+    max-width: 320px;
+    margin: 0 auto;
+}
+
+.album-view-modal__icon {
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 16px;
+    border-radius: 22px;
+    background: linear-gradient(45deg, #ff5e7d, #ff9a5a);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    font-weight: 700;
+    box-shadow: 0 10px 28px rgba(255, 94, 125, 0.25);
+}
+
+.album-view-modal__empty-state p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.82);
+    line-height: 1.6;
+}
+
+.album-photo-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    min-height: 180px;
+}
+
+.album-photo-card__image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 180px;
+    object-fit: cover;
+}
+
+.album-photo-card__remove {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    border: none;
+    border-radius: 999px;
+    padding: 10px 14px;
+    background: rgba(14, 14, 14, 0.72);
+    color: white;
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+    transition: transform 0.25s ease, background 0.25s ease;
+}
+
+.album-photo-card__remove:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 94, 125, 0.88);
 }
 
 /************* HAMBURGER MENU *************/

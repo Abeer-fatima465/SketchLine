@@ -40,6 +40,51 @@
         </main>
     </div>
 
+    <div class="album-modal" id="album-modal" aria-hidden="true">
+        <div class="album-modal__backdrop"></div>
+        <div class="album-modal__dialog glass-container" role="dialog" aria-modal="true" aria-labelledby="album-modal-title">
+            <button class="album-modal__close" type="button" aria-label="Close album form">
+                ×
+            </button>
+            <h2 class="album-modal__title" id="album-modal-title">Create Album</h2>
+            <p class="album-modal__subtitle">Add a name and description for your new album.</p>
+            <form class="album-form" id="album-form">
+                <label class="album-form__field">
+                    <span>Album Name</span>
+                    <input class="album-form__input" id="album-name-input" name="title" type="text" maxlength="50" placeholder="Album 4" required>
+                </label>
+                <label class="album-form__field">
+                    <span>Description</span>
+                    <textarea class="album-form__input album-form__textarea" id="album-description-input" name="subtitle" rows="3" maxlength="120" placeholder="Generic album"></textarea>
+                </label>
+                <div class="album-form__actions">
+                    <button class="album-form__cancel" type="button">Cancel</button>
+                    <button class="album-form__submit" type="submit">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="album-view-modal" id="album-view-modal" aria-hidden="true">
+        <div class="album-view-modal__backdrop"></div>
+        <div class="album-view-modal__dialog glass-container" role="dialog" aria-modal="true" aria-labelledby="album-view-title">
+            <button class="album-view-modal__close" type="button" aria-label="Close album view">
+                ×
+            </button>
+            <p class="album-view-modal__eyebrow">Album Preview</p>
+            <h2 class="album-view-modal__title" id="album-view-title"></h2>
+            <p class="album-view-modal__description" id="album-view-description"></p>
+            <div class="album-view-modal__actions">
+                <label class="album-view-modal__upload" for="album-photo-input">Add Photos</label>
+                <input class="album-view-modal__file-input" id="album-photo-input" type="file" accept="image/*" multiple>
+                <button class="album-view-modal__save" id="album-save-btn" type="button">Save</button>
+            </div>
+            <div class="album-view-modal__content">
+                <div class="album-view-modal__gallery" id="album-photo-gallery"></div>
+            </div>
+        </div>
+    </div>
+
     <script>
         /************* BACKGROUND SLIDER (same vibe as login) *************/
         document.addEventListener('DOMContentLoaded', () => {
@@ -103,13 +148,29 @@
             };
 
             let albums = [
-                { id: 1, title: 'Album 1', subtitle: 'Generic album' },
-                { id: 2, title: 'Album 2', subtitle: 'Generic album' },
-                { id: 3, title: 'Album 3', subtitle: 'Generic album' }
+                { id: 1, title: 'Album 1', subtitle: 'Generic album', photos: [] },
+                { id: 2, title: 'Album 2', subtitle: 'Generic album', photos: [] },
+                { id: 3, title: 'Album 3', subtitle: 'Generic album', photos: [] }
             ];
+            let selectedAlbumIds = new Set();
+            let isDeleteMode = false;
+            let currentAlbumId = null;
 
             const profileRoot = document.getElementById('profile-root');
             const albumsRoot = document.getElementById('albums-root');
+            const albumModal = document.getElementById('album-modal');
+            const albumForm = document.getElementById('album-form');
+            const albumNameInput = document.getElementById('album-name-input');
+            const albumDescriptionInput = document.getElementById('album-description-input');
+            const albumModalCloseBtn = albumModal.querySelector('.album-modal__close');
+            const albumModalCancelBtn = albumModal.querySelector('.album-form__cancel');
+            const albumViewModal = document.getElementById('album-view-modal');
+            const albumViewTitle = document.getElementById('album-view-title');
+            const albumViewDescription = document.getElementById('album-view-description');
+            const albumViewCloseBtn = albumViewModal.querySelector('.album-view-modal__close');
+            const albumPhotoInput = document.getElementById('album-photo-input');
+            const albumPhotoGallery = document.getElementById('album-photo-gallery');
+            const albumSaveBtn = document.getElementById('album-save-btn');
 
             function renderProfile() {
                 profileRoot.innerHTML = `
@@ -127,7 +188,10 @@
 
             function renderAlbums() {
                 const albumsHTML = albums.map(album => `
-                    <div class="album-card glass-container">
+                    <div
+                        class="album-card glass-container ${selectedAlbumIds.has(album.id) ? 'album-card--selected' : ''} ${isDeleteMode ? 'album-card--delete-mode' : ''}"
+                        data-id="${album.id}"
+                    >
                         <div class="album-title">${album.title}</div>
                         <div class="album-subtitle">${album.subtitle}</div>
                     </div>
@@ -136,9 +200,19 @@
                 albumsRoot.innerHTML = `
                     <section class="albums-section">
                         <div class="albums-inner glass-container">
-                            <button class="add-album-btn" type="button" aria-label="Add album">
-                                +
-                            </button>
+                            <div class="albums-actions">
+                                <button class="add-album-btn" type="button" aria-label="Add album">
+                                    +
+                                </button>
+                                <button
+                                    class="delete-albums-btn ${isDeleteMode ? 'delete-albums-btn--active' : ''}"
+                                    type="button"
+                                    aria-label="Delete selected albums"
+                                    title="${isDeleteMode ? 'Delete selected albums' : 'Select albums to delete'}"
+                                >
+                                    -
+                                </button>
+                            </div>
                             <div class="albums-row">
                                 ${albumsHTML}
                             </div>
@@ -147,23 +221,221 @@
                 `;
 
                 const addBtn = albumsRoot.querySelector('.add-album-btn');
+                const deleteBtn = albumsRoot.querySelector('.delete-albums-btn');
+                const albumCards = albumsRoot.querySelectorAll('.album-card');
+
                 addBtn.addEventListener('click', handleAddAlbum);
+                deleteBtn.addEventListener('click', handleDeleteAlbum);
+                albumCards.forEach(card => {
+                    card.addEventListener('click', handleAlbumCardClick);
+                });
             }
 
             function handleAddAlbum() {
-                const nextId = albums.length ? albums[albums.length - 1].id + 1 : 1;
                 const newNumber = albums.length + 1;
+                albumForm.dataset.nextId = String(albums.length ? albums[albums.length - 1].id + 1 : 1);
+                albumNameInput.value = `Album ${newNumber}`;
+                albumDescriptionInput.value = 'Generic album';
+                openAlbumModal();
+            }
+
+            function openAlbumModal() {
+                albumModal.classList.add('album-modal--open');
+                albumModal.setAttribute('aria-hidden', 'false');
+                albumNameInput.focus();
+                albumNameInput.select();
+            }
+
+            function closeAlbumModal() {
+                albumModal.classList.remove('album-modal--open');
+                albumModal.setAttribute('aria-hidden', 'true');
+                albumForm.reset();
+            }
+
+            function handleAlbumFormSubmit(event) {
+                event.preventDefault();
+
+                const fallbackNumber = albums.length + 1;
+                const title = albumNameInput.value.trim() || `Album ${fallbackNumber}`;
+                const subtitle = albumDescriptionInput.value.trim() || 'Generic album';
+                const nextId = parseInt(albumForm.dataset.nextId, 10);
 
                 albums.push({
                     id: nextId,
-                    title: `Album ${newNumber}`,
-                    subtitle: 'Generic album'
+                    title,
+                    subtitle,
+                    photos: []
                 });
+
+                closeAlbumModal();
+                renderAlbums();
+            }
+
+            function handleToggleAlbumSelection() {
+                if (!isDeleteMode) {
+                    return;
+                }
+
+                const albumId = parseInt(this.getAttribute('data-id'), 10);
+
+                if (selectedAlbumIds.has(albumId)) {
+                    selectedAlbumIds.delete(albumId);
+                } else {
+                    selectedAlbumIds.add(albumId);
+                }
 
                 renderAlbums();
             }
 
+            function handleAlbumCardClick() {
+                if (isDeleteMode) {
+                    handleToggleAlbumSelection.call(this);
+                    return;
+                }
+
+                const albumId = parseInt(this.getAttribute('data-id'), 10);
+                const album = albums.find(item => item.id === albumId);
+
+                if (!album) {
+                    return;
+                }
+
+                openAlbumView(album);
+            }
+
+            function handleDeleteAlbum() {
+                if (!isDeleteMode) {
+                    isDeleteMode = true;
+                    renderAlbums();
+                    return;
+                }
+
+                if (selectedAlbumIds.size === 0) {
+                    selectedAlbumIds.clear();
+                    isDeleteMode = false;
+                    renderAlbums();
+                    return;
+                }
+
+                albums = albums.filter(album => !selectedAlbumIds.has(album.id));
+                selectedAlbumIds.clear();
+                isDeleteMode = false;
+                renderAlbums();
+            }
+
+            function openAlbumView(album) {
+                currentAlbumId = album.id;
+                albumViewTitle.textContent = album.title;
+                albumViewDescription.textContent = album.subtitle;
+                renderAlbumPhotos(album);
+                albumViewModal.classList.add('album-view-modal--open');
+                albumViewModal.setAttribute('aria-hidden', 'false');
+            }
+
+            function closeAlbumView() {
+                currentAlbumId = null;
+                albumPhotoInput.value = '';
+                albumViewModal.classList.remove('album-view-modal--open');
+                albumViewModal.setAttribute('aria-hidden', 'true');
+            }
+
+            function handleSaveAlbum() {
+                closeAlbumView();
+            }
+
+            function renderAlbumPhotos(album) {
+                if (!album.photos.length) {
+                    albumPhotoGallery.innerHTML = `
+                        <div class="album-view-modal__empty-state">
+                            <div class="album-view-modal__icon">${album.title.charAt(0).toUpperCase()}</div>
+                            <p>No photos in this album yet.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                albumPhotoGallery.innerHTML = album.photos.map(photo => `
+                    <article class="album-photo-card">
+                        <img class="album-photo-card__image" src="${photo.src}" alt="${photo.name}">
+                        <button class="album-photo-card__remove" type="button" data-photo-id="${photo.id}" aria-label="Remove photo">
+                            Remove
+                        </button>
+                    </article>
+                `).join('');
+
+                albumPhotoGallery.querySelectorAll('.album-photo-card__remove').forEach(button => {
+                    button.addEventListener('click', handleRemovePhoto);
+                });
+            }
+
+            function handleAlbumPhotoSelection(event) {
+                const currentAlbum = albums.find(album => album.id === currentAlbumId);
+                const files = Array.from(event.target.files || []);
+
+                if (!currentAlbum || !files.length) {
+                    return;
+                }
+
+                files.forEach(file => {
+                    const reader = new FileReader();
+
+                    reader.addEventListener('load', () => {
+                        currentAlbum.photos.push({
+                            id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+                            name: file.name,
+                            src: reader.result
+                        });
+
+                        if (currentAlbumId === currentAlbum.id) {
+                            renderAlbumPhotos(currentAlbum);
+                        }
+                    });
+
+                    reader.readAsDataURL(file);
+                });
+
+                event.target.value = '';
+            }
+
+            function handleRemovePhoto() {
+                const currentAlbum = albums.find(album => album.id === currentAlbumId);
+                const photoId = this.getAttribute('data-photo-id');
+
+                if (!currentAlbum) {
+                    return;
+                }
+
+                currentAlbum.photos = currentAlbum.photos.filter(photo => photo.id !== photoId);
+                renderAlbumPhotos(currentAlbum);
+            }
+
             // Initial render
+            albumForm.addEventListener('submit', handleAlbumFormSubmit);
+            albumModalCloseBtn.addEventListener('click', closeAlbumModal);
+            albumModalCancelBtn.addEventListener('click', closeAlbumModal);
+            albumModal.addEventListener('click', (event) => {
+                if (event.target.classList.contains('album-modal') || event.target.classList.contains('album-modal__backdrop')) {
+                    closeAlbumModal();
+                }
+            });
+            albumViewCloseBtn.addEventListener('click', closeAlbumView);
+            albumPhotoInput.addEventListener('change', handleAlbumPhotoSelection);
+            albumSaveBtn.addEventListener('click', handleSaveAlbum);
+            albumViewModal.addEventListener('click', (event) => {
+                if (event.target.classList.contains('album-view-modal') || event.target.classList.contains('album-view-modal__backdrop')) {
+                    closeAlbumView();
+                }
+            });
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape' && albumModal.classList.contains('album-modal--open')) {
+                    closeAlbumModal();
+                }
+
+                if (event.key === 'Escape' && albumViewModal.classList.contains('album-view-modal--open')) {
+                    closeAlbumView();
+                }
+            });
+
             renderProfile();
             renderAlbums();
         });
