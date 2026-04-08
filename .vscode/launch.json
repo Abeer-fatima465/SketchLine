@@ -6,6 +6,7 @@
       "type": "node",
       "request": "launch",
       "name": "Launch server.js",
+      "runtimeExecutable": "/opt/homebrew/bin/node",
       "program": "${workspaceFolder}/server.js",
       "cwd": "${workspaceFolder}",
       "env": {
