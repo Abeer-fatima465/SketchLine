@@ -1424,6 +1424,10 @@ body.theme-light .profile-bio__text {
     background: rgba(255, 255, 255, 0.1);
     padding-left: 24px;
 }
+.dash-hamburger__item--logout:hover {
+    background: #E25563;
+}
+
 
 @media (max-width: 900px) {
     .polaroid-strip--center {
