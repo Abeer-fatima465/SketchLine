@@ -18,6 +18,7 @@
             <a class="dash-hamburger__item" href="#">Discover</a>
             <a class="dash-hamburger__item" href="#">Home</a>
             <a class="dash-hamburger__item" href="#">Search</a>
+            <a class="dash-hamburger__item dash-hamburger__item--logout" href="/logout">Logout</a>
         </nav>
     </div>
 
@@ -181,7 +182,9 @@
                 initials: 'JD',
                 name: 'Jane Doe',
                 phone: '555-123-4567',
-                email: 'janedoe@janedoe.com'
+                email: 'janedoe@janedoe.com',
+                photo: null,
+                bio: 'Photographer, traveler, and visual storyteller collecting moments one frame at a time.'
             };
 
             let albums = [
@@ -194,6 +197,7 @@
             let currentAlbumId = null;
             let pendingDeleteAlbumId = null;
             let currentPhotoIndex = 0;
+            let isEditingProfileDetails = false;
 
             const profileRoot = document.getElementById('profile-root');
             const albumsRoot = document.getElementById('albums-root');
@@ -222,18 +226,190 @@
             const deleteConfirmCancelBtn = deleteConfirmModal.querySelector('.delete-confirm-modal__cancel');
             const deleteConfirmSubmitBtn = deleteConfirmModal.querySelector('.delete-confirm-modal__confirm');
 
+            function escapeHTML(value) {
+                return String(value)
+                    .replaceAll('&', '&amp;')
+                    .replaceAll('<', '&lt;')
+                    .replaceAll('>', '&gt;')
+                    .replaceAll('"', '&quot;')
+                    .replaceAll("'", '&#39;');
+            }
+
+            function getInitials(name) {
+                const parts = String(name)
+                    .trim()
+                    .split(/\s+/)
+                    .filter(Boolean)
+                    .slice(0, 2);
+
+                if (!parts.length) {
+                    return 'JD';
+                }
+
+                return parts.map(part => part.charAt(0).toUpperCase()).join('');
+            }
+
             function renderProfile() {
+                const safeName = escapeHTML(profileData.name);
+                const safePhone = escapeHTML(profileData.phone);
+                const safeEmail = escapeHTML(profileData.email);
+                const safeBio = escapeHTML(profileData.bio);
+                const safeInitials = escapeHTML(profileData.initials);
+
                 profileRoot.innerHTML = `
                     <div class="profile-card glass-container">
-                        <div class="profile-avatar">
-                            ${profileData.initials}
+                        <div class="profile-avatar-wrap">
+                            <div class="profile-avatar">
+                                ${profileData.photo
+                                    ? `<img class="profile-avatar__image" src="${profileData.photo}" alt="${safeName} profile photo">`
+                                    : safeInitials}
+                                <label class="profile-avatar__upload" for="profile-photo-input" aria-label="Upload profile photo" title="Upload profile photo">
+                                    &#9998;
+                                </label>
+                            </div>
+                            <input class="profile-avatar__input" id="profile-photo-input" type="file" accept="image/*">
                         </div>
-                        <h1 class="profile-name">${profileData.name}</h1>
-                        <p class="profile-contact">
-                            ${profileData.phone} | ${profileData.email}
-                        </p>
+                        <div class="profile-details-card">
+                            <div class="profile-details__header">
+                                <span class="profile-details__label">Profile</span>
+                                ${isEditingProfileDetails
+                                    ? ''
+                                    : `
+                                        <button class="profile-details__edit" type="button" aria-label="Edit profile details" title="Edit profile details">
+                                            &#9998;
+                                        </button>
+                                    `}
+                            </div>
+                            ${isEditingProfileDetails
+                                ? `
+                                    <form class="profile-details__form" id="profile-details-form">
+                                        <label class="profile-details__field">
+                                            <span>Name</span>
+                                            <input class="profile-details__input" id="profile-name-input" type="text" maxlength="60" value="${safeName}" required>
+                                        </label>
+                                        <label class="profile-details__field">
+                                            <span>Phone</span>
+                                            <input class="profile-details__input" id="profile-phone-input" type="text" maxlength="30" value="${safePhone}">
+                                        </label>
+                                        <label class="profile-details__field">
+                                            <span>Email</span>
+                                            <input class="profile-details__input" id="profile-email-input" type="email" maxlength="80" value="${safeEmail}">
+                                        </label>
+                                        <label class="profile-details__field">
+                                            <span>Bio</span>
+                                            <textarea
+                                                class="profile-details__input profile-details__textarea"
+                                                id="profile-bio-input"
+                                                maxlength="220"
+                                                rows="4"
+                                                placeholder="Write a short bio"
+                                            >${safeBio}</textarea>
+                                        </label>
+                                        <div class="profile-details__actions">
+                                            <button class="profile-details__cancel" type="button">Cancel</button>
+                                            <button class="profile-details__save" type="submit">Save</button>
+                                        </div>
+                                    </form>
+                                `
+                                : `
+                                    <h1 class="profile-name">${safeName}</h1>
+                                    <p class="profile-contact">
+                                        ${safePhone} | ${safeEmail}
+                                    </p>
+                                    <p class="profile-bio__text">${safeBio}</p>
+                                `}
+                        </div>
                     </div>
                 `;
+
+                const profilePhotoInput = document.getElementById('profile-photo-input');
+                const profileDetailsEditBtn = document.querySelector('.profile-details__edit');
+                const profileDetailsForm = document.getElementById('profile-details-form');
+                const profileDetailsCancelBtn = document.querySelector('.profile-details__cancel');
+                const profileNameInput = document.getElementById('profile-name-input');
+                if (profilePhotoInput) {
+                    profilePhotoInput.addEventListener('change', handleProfilePhotoSelection);
+                }
+
+                if (profileDetailsEditBtn) {
+                    profileDetailsEditBtn.addEventListener('click', openProfileDetailsEditor);
+                }
+
+                if (profileDetailsForm) {
+                    profileDetailsForm.addEventListener('submit', handleProfileDetailsSubmit);
+                }
+
+                if (profileDetailsCancelBtn) {
+                    profileDetailsCancelBtn.addEventListener('click', closeProfileDetailsEditor);
+                }
+                const profileBioInput = document.getElementById('profile-bio-input');
+
+                if (profileNameInput) {
+                    profileNameInput.focus();
+                    profileNameInput.select();
+                } else if (profileBioInput) {
+                    profileBioInput.focus();
+                    profileBioInput.setSelectionRange(profileBioInput.value.length, profileBioInput.value.length);
+                }
+            }
+
+            function handleProfilePhotoSelection(event) {
+                const [file] = Array.from(event.target.files || []);
+
+                if (!file) {
+                    return;
+                }
+
+                if (!file.type.startsWith('image/')) {
+                    event.target.value = '';
+                    return;
+                }
+
+                const reader = new FileReader();
+
+                reader.addEventListener('load', () => {
+                    profileData.photo = reader.result;
+                    renderProfile();
+                });
+
+                reader.readAsDataURL(file);
+                event.target.value = '';
+            }
+
+            function openProfileDetailsEditor() {
+                isEditingProfileDetails = true;
+                renderProfile();
+            }
+
+            function closeProfileDetailsEditor() {
+                isEditingProfileDetails = false;
+                renderProfile();
+            }
+
+            function handleProfileDetailsSubmit(event) {
+                event.preventDefault();
+
+                const profileNameInput = document.getElementById('profile-name-input');
+                const profilePhoneInput = document.getElementById('profile-phone-input');
+                const profileEmailInput = document.getElementById('profile-email-input');
+                const profileBioInput = document.getElementById('profile-bio-input');
+
+                if (!profileNameInput || !profilePhoneInput || !profileEmailInput || !profileBioInput) {
+                    return;
+                }
+
+                const nextName = profileNameInput.value.trim() || 'Jane Doe';
+                const nextPhone = profilePhoneInput.value.trim() || '555-123-4567';
+                const nextEmail = profileEmailInput.value.trim() || 'janedoe@janedoe.com';
+                const nextBio = profileBioInput.value.trim();
+
+                profileData.name = nextName;
+                profileData.phone = nextPhone;
+                profileData.email = nextEmail;
+                profileData.bio = nextBio;
+                profileData.initials = getInitials(nextName);
+                isEditingProfileDetails = false;
+                renderProfile();
             }
 
             function renderAlbums() {
