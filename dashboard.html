@@ -22,12 +22,44 @@
         </nav>
     </div>
 
-    <!-- Background image slider -->
+    <!-- Decorative polaroid strip background -->
     <div class="image-container">
-        <div class="image-slide" style="background-image: url('https://source.unsplash.com/random/1920x1080?nature')"></div>
-        <div class="image-slide" style="background-image: url('https://source.unsplash.com/random/1920x1080?city')"></div>
-        <div class="image-slide" style="background-image: url('https://source.unsplash.com/random/1920x1080?architecture')"></div>
-        <div class="image-slide" style="background-image: url('https://source.unsplash.com/random/1920x1080?travel')"></div>
+        <div class="polaroid-strip polaroid-strip--left" aria-hidden="true">
+            <div class="polaroid-frame">
+                <div class="polaroid-frame__photo" style="background-image: url('https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80');"></div>
+            </div>
+            <div class="polaroid-frame">
+                <div class="polaroid-frame__photo" style="background-image: url('https://images.unsplash.com/photo-1493246507139-91e8fad9978e?auto=format&fit=crop&w=900&q=80');"></div>
+            </div>
+            <div class="polaroid-frame">
+                <div class="polaroid-frame__photo" style="background-image: url('https://images.unsplash.com/photo-1516483638261-f4dbaf036963?auto=format&fit=crop&w=900&q=80');"></div>
+            </div>
+        </div>
+        <div class="polaroid-strip polaroid-strip--center" aria-hidden="true">
+            <div class="polaroid-frame">
+                <div class="polaroid-frame__photo" style="background-image: url('https://images.unsplash.com/photo-1504198453319-5ce911bafcde?auto=format&fit=crop&w=900&q=80');"></div>
+            </div>
+            <div class="polaroid-frame">
+                <div class="polaroid-frame__photo" style="background-image: url('https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=900&q=80');"></div>
+            </div>
+            <div class="polaroid-frame">
+                <div class="polaroid-frame__photo" style="background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=900&q=80');"></div>
+            </div>
+            <div class="polaroid-frame">
+                <div class="polaroid-frame__photo" style="background-image: url('https://images.unsplash.com/photo-1491553895911-0055eca6402d?auto=format&fit=crop&w=900&q=80');"></div>
+            </div>
+        </div>
+        <div class="polaroid-strip polaroid-strip--right" aria-hidden="true">
+            <div class="polaroid-frame">
+                <div class="polaroid-frame__photo" style="background-image: url('https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=900&q=80');"></div>
+            </div>
+            <div class="polaroid-frame">
+                <div class="polaroid-frame__photo" style="background-image: url('https://images.unsplash.com/photo-1504893524553-b855bce32c67?auto=format&fit=crop&w=900&q=80');"></div>
+            </div>
+            <div class="polaroid-frame">
+                <div class="polaroid-frame__photo" style="background-image: url('https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=900&q=80');"></div>
+            </div>
+        </div>
     </div>
 
     <!-- Dashboard body -->
@@ -124,7 +156,7 @@
     </div>
 
     <script>
-        /************* BACKGROUND SLIDER (same vibe as login) *************/
+        /************* DASHBOARD INTERACTIONS *************/
         document.addEventListener('DOMContentLoaded', () => {
             /************* HAMBURGER MENU *************/
             const hamburgerBtn = document.querySelector('.dash-hamburger__btn');
@@ -149,32 +181,6 @@
                         hamburgerBtn.setAttribute('aria-expanded', 'false');
                     }
                 });
-            }
-
-            let currentSlide = 0;
-            const slides = document.querySelectorAll('.image-slide');
-            const totalSlides = slides.length;
-
-            function showSlide(index) {
-                slides.forEach(slide => {
-                    slide.style.opacity = '0';
-                    slide.style.transform = 'scale(1)';
-                });
-
-                if (slides[index]) {
-                    slides[index].style.opacity = '0.4';
-                    slides[index].style.transform = 'scale(1.02)';
-                }
-            }
-
-            function nextSlide() {
-                currentSlide = (currentSlide + 1) % totalSlides;
-                showSlide(currentSlide);
-            }
-
-            if (totalSlides > 0) {
-                showSlide(currentSlide);
-                setInterval(nextSlide, 5000);
             }
 
             /************* DYNAMIC PROFILE + ALBUMS *************/

@@ -4,12 +4,12 @@ body {
     height: 100vh;
     margin: 0;
     background:
-        radial-gradient(circle at 18% 18%, rgba(126, 151, 199, 0.14), transparent 28%),
-        radial-gradient(circle at 82% 16%, rgba(142, 104, 124, 0.12), transparent 30%),
-        radial-gradient(circle at 48% 82%, rgba(214, 143, 106, 0.08), transparent 34%),
-        linear-gradient(145deg, #05070c 0%, #0b1320 34%, #151923 68%, #1f1820 100%);
+        radial-gradient(circle at 18% 18%, rgba(189, 144, 110, 0.18), transparent 28%),
+        radial-gradient(circle at 82% 16%, rgba(115, 132, 172, 0.14), transparent 30%),
+        radial-gradient(circle at 48% 82%, rgba(228, 170, 124, 0.1), transparent 34%),
+        linear-gradient(145deg, #08080b 0%, #10141d 34%, #18151b 68%, #241d1a 100%);
     overflow: hidden;
-    font-family: 'Arial', sans-serif;
+    font-family: "Arial", sans-serif;
     color: white;
     position: relative;
 }
@@ -21,7 +21,6 @@ body {
     width: 100%;
     height: 100%;
     z-index: -1;
-    display: flex;
     overflow: hidden;
 }
 
@@ -33,34 +32,119 @@ body {
 }
 
 .image-container::before {
-    inset: -10%;
+    inset: -8%;
     background:
-        radial-gradient(circle at 18% 28%, rgba(112, 137, 182, 0.16), transparent 24%),
-        radial-gradient(circle at 80% 18%, rgba(129, 98, 120, 0.14), transparent 22%),
-        radial-gradient(circle at 68% 76%, rgba(186, 124, 98, 0.1), transparent 26%);
-    mix-blend-mode: screen;
+        radial-gradient(circle at 16% 24%, rgba(209, 162, 120, 0.14), transparent 26%),
+        radial-gradient(circle at 84% 18%, rgba(128, 150, 190, 0.14), transparent 24%),
+        radial-gradient(circle at 68% 78%, rgba(181, 112, 89, 0.12), transparent 28%);
     filter: blur(62px);
-    opacity: 0.62;
+    opacity: 0.72;
     animation: lightLeakShift 16s ease-in-out infinite alternate;
 }
 
 .image-container::after {
     inset: 0;
     background:
-        linear-gradient(to bottom, rgba(4, 7, 12, 0.28), rgba(4, 7, 12, 0.74)),
-        radial-gradient(circle at top, rgba(160, 135, 126, 0.06), transparent 46%);
-    backdrop-filter: blur(3px);
+        linear-gradient(to bottom, rgba(8, 8, 11, 0.22), rgba(8, 8, 11, 0.74)),
+        radial-gradient(circle at top, rgba(255, 235, 214, 0.05), transparent 46%);
+    backdrop-filter: blur(2px);
 }
 
-.image-slide {
-    flex: 1;
-    height: 100%;
+.polaroid-strip {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    opacity: 0.46;
+    filter: saturate(0.9) brightness(0.8);
+    pointer-events: none;
+}
+
+.polaroid-strip::before {
+    content: "";
+    position: absolute;
+    top: -18px;
+    left: 50%;
+    width: 8px;
+    height: calc(100% + 36px);
+    border-radius: 999px;
+    transform: translateX(-50%);
+    background: linear-gradient(to bottom, rgba(255, 246, 228, 0.42), rgba(173, 149, 129, 0.12));
+    box-shadow: 0 0 0 1px rgba(255, 245, 230, 0.08);
+}
+
+.polaroid-strip--left {
+    top: -4%;
+    left: -1%;
+    transform: rotate(-12deg);
+    animation: polaroidDriftLeft 18s ease-in-out infinite alternate;
+}
+
+.polaroid-strip--center {
+    top: -8%;
+    left: 38%;
+    transform: rotate(7deg);
+    animation: polaroidDriftCenter 20s ease-in-out infinite alternate;
+}
+
+.polaroid-strip--right {
+    top: -6%;
+    right: 2%;
+    transform: rotate(14deg);
+    animation: polaroidDriftRight 22s ease-in-out infinite alternate;
+}
+
+.polaroid-frame {
+    width: clamp(150px, 14vw, 220px);
+    padding: 14px 14px 34px;
+    border-radius: 6px;
+    background:
+        linear-gradient(160deg, rgba(255, 255, 255, 0.98), rgba(239, 232, 223, 0.98));
+    box-shadow:
+        0 14px 30px rgba(0, 0, 0, 0.26),
+        0 2px 0 rgba(255, 255, 255, 0.34) inset;
+    position: relative;
+}
+
+.polaroid-frame:nth-child(2n) {
+    transform: rotate(-4deg);
+}
+
+.polaroid-frame:nth-child(3n) {
+    transform: rotate(3deg);
+}
+
+.polaroid-frame::after {
+    content: "";
+    position: absolute;
+    left: 18px;
+    right: 18px;
+    bottom: 12px;
+    height: 8px;
+    border-radius: 999px;
+    background: rgba(124, 96, 75, 0.12);
+    filter: blur(5px);
+}
+
+.polaroid-frame__photo {
+    aspect-ratio: 1 / 1.15;
+    border-radius: 2px;
     background-size: cover;
     background-position: center;
-    transition: all 1.5s ease;
-    opacity: 0.08;
-    filter: blur(12px) saturate(0.62) brightness(0.62);
-    transform: scale(1.08);
+    box-shadow:
+        0 0 0 1px rgba(56, 45, 37, 0.06),
+        0 18px 28px rgba(71, 52, 36, 0.18) inset;
+    position: relative;
+    overflow: hidden;
+}
+
+.polaroid-frame__photo::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.18), transparent 30%, rgba(42, 28, 18, 0.18) 100%),
+        radial-gradient(circle at 24% 18%, rgba(255, 238, 220, 0.14), transparent 26%);
 }
 
 .profile-dashboard {
@@ -1091,6 +1175,36 @@ body {
     }
 }
 
+@keyframes polaroidDriftLeft {
+    0% {
+        transform: rotate(-12deg) translate3d(0, 0, 0);
+    }
+
+    100% {
+        transform: rotate(-9deg) translate3d(18px, 20px, 0);
+    }
+}
+
+@keyframes polaroidDriftCenter {
+    0% {
+        transform: rotate(7deg) translate3d(0, 0, 0);
+    }
+
+    100% {
+        transform: rotate(10deg) translate3d(-10px, 26px, 0);
+    }
+}
+
+@keyframes polaroidDriftRight {
+    0% {
+        transform: rotate(14deg) translate3d(0, 0, 0);
+    }
+
+    100% {
+        transform: rotate(10deg) translate3d(-18px, 16px, 0);
+    }
+}
+
 @keyframes filmGrain {
     0% {
         transform: translate(0, 0);
@@ -1170,4 +1284,42 @@ body {
 .dash-hamburger__item:hover {
     background: rgba(255, 255, 255, 0.1);
     padding-left: 24px;
+}
+
+@media (max-width: 900px) {
+    .polaroid-strip--center {
+        left: 30%;
+    }
+
+    .polaroid-strip--right {
+        right: -6%;
+    }
+
+    .polaroid-frame {
+        width: clamp(132px, 22vw, 190px);
+    }
+}
+
+@media (max-width: 680px) {
+    .polaroid-strip {
+        opacity: 0.3;
+        gap: 14px;
+    }
+
+    .polaroid-strip--left {
+        left: -12%;
+    }
+
+    .polaroid-strip--center {
+        left: 50%;
+    }
+
+    .polaroid-strip--right {
+        display: none;
+    }
+
+    .polaroid-frame {
+        width: clamp(112px, 28vw, 150px);
+        padding: 10px 10px 24px;
+    }
 }
