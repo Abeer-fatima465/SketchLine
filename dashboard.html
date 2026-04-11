@@ -21,7 +21,22 @@
             <a class="dash-hamburger__item dash-hamburger__item--logout" href="/logout">Logout</a>
         </nav>
     </div>
-
+    <!-- Day/Night toggle -->
+    <div class="dash-theme-toggle">
+        <button
+            class="dash-theme-toggle__switch"
+            id="theme-toggle-btn"
+            type="button"
+            aria-label="Toggle light/dark theme"
+            aria-pressed="false"
+        >
+            <span class="dash-theme-toggle__track">
+                <span class="dash-theme-toggle__icon dash-theme-toggle__icon--moon" aria-hidden="true">☾</span>
+                <span class="dash-theme-toggle__thumb"></span>
+                <span class="dash-theme-toggle__icon dash-theme-toggle__icon--sun" aria-hidden="true">☀</span>
+            </span>
+        </button>
+    </div>
     <!-- Decorative polaroid strip background -->
     <div class="image-container">
         <div class="polaroid-strip polaroid-strip--left" aria-hidden="true">
@@ -161,6 +176,70 @@
             /************* HAMBURGER MENU *************/
             const hamburgerBtn = document.querySelector('.dash-hamburger__btn');
             const hamburgerMenu = document.querySelector('.dash-hamburger__menu');
+            const themeToggleBtn = document.getElementById('theme-toggle-btn');
+            const savedTheme = localStorage.getItem('dashboardTheme');
+
+            function applyDashboardTheme(theme) {
+                const isLight = theme === 'light';
+                document.body.classList.toggle('theme-light', isLight);
+
+                if (themeToggleBtn) {
+                    themeToggleBtn.setAttribute('aria-pressed', String(isLight));
+                }
+            }
+
+            async function persistDashboardTheme(theme) {
+                localStorage.setItem('dashboardTheme', theme);
+
+                try {
+                    const response = await fetch('/api/preferences/theme', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ theme })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Theme save failed with status ${response.status}`);
+                    }
+                } catch (error) {
+                    console.error('Unable to save theme preference to server:', error);
+                }
+            }
+
+            async function loadDashboardTheme() {
+                if (savedTheme === 'light' || savedTheme === 'dark') {
+                    applyDashboardTheme(savedTheme);
+                } else {
+                    applyDashboardTheme('dark');
+                }
+
+                try {
+                    const response = await fetch('/api/preferences/theme');
+
+                    if (!response.ok) {
+                        throw new Error(`Theme load failed with status ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    const theme = data.theme === 'light' ? 'light' : 'dark';
+                    applyDashboardTheme(theme);
+                    localStorage.setItem('dashboardTheme', theme);
+                } catch (error) {
+                    console.error('Unable to load theme preference from server:', error);
+                }
+            }
+
+            loadDashboardTheme();
+
+            if (themeToggleBtn) {
+                themeToggleBtn.addEventListener('click', async () => {
+                    const nextTheme = document.body.classList.contains('theme-light') ? 'dark' : 'light';
+                    applyDashboardTheme(nextTheme);
+                    await persistDashboardTheme(nextTheme);
+                });
+            }
 
             if (hamburgerBtn && hamburgerMenu) {
                 const toggleMenu = () => {

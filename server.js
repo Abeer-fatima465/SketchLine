@@ -10,6 +10,7 @@ const generateSecret = () => crypto.randomBytes(32).toString('hex');
 
 const app = express();
 const port = 3000;
+const userPreferences = new Map();
 
 // Security middleware
 app.use(helmet());
@@ -45,17 +46,6 @@ app.use(express.json());
 // Serve static files from the same directory as this script
 app.use(express.static(__dirname));
 
-// Custom 404 handler
-app.use((req, res) => {
-  res.status(404).send("Sorry can't find that!");
-});
-
-// Custom error handler
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).send('Something broke!');
-});
-
 // Route to serve the welcome page
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
@@ -80,6 +70,7 @@ app.post('/login', async (req, res) => {
 
     req.session.loggedIn = true;
     req.session.userId = user.id;
+    req.session.dashboardTheme = userPreferences.get(user.id)?.dashboardTheme || 'dark';
     res.redirect('/dashboard');
   } catch (error) {
     console.error('Login error:', error);
@@ -94,6 +85,35 @@ app.get('/dashboard', (req, res) => {
   } else {
     res.redirect('/');
   }
+});
+
+app.get('/api/preferences/theme', (req, res) => {
+  if (!req.session.loggedIn || !req.session.userId) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  const storedTheme = userPreferences.get(req.session.userId)?.dashboardTheme;
+  const dashboardTheme = storedTheme || req.session.dashboardTheme || 'dark';
+  req.session.dashboardTheme = dashboardTheme;
+
+  res.json({ theme: dashboardTheme });
+});
+
+app.post('/api/preferences/theme', (req, res) => {
+  if (!req.session.loggedIn || !req.session.userId) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  const { theme } = req.body;
+
+  if (theme !== 'light' && theme !== 'dark') {
+    return res.status(400).json({ error: 'Theme must be light or dark' });
+  }
+
+  req.session.dashboardTheme = theme;
+  userPreferences.set(req.session.userId, { dashboardTheme: theme });
+
+  res.json({ success: true, theme });
 });
 
 // Route to handle logout
@@ -125,6 +145,17 @@ app.post('/signup', async (req, res) => {
     console.error('Sign-up error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
+});
+
+// Custom 404 handler
+app.use((req, res) => {
+  res.status(404).send("Sorry can't find that!");
+});
+
+// Custom error handler
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Something broke!');
 });
 
 // Start the server
